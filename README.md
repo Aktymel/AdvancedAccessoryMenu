@@ -6,7 +6,7 @@ Supported games: HS2, AI, KK, KKS
 
 | Game's slot list | | Accessories menu |
 |---|:---:|---|
-| ![Game's slot list](AdvancedAccessoriesMenu/screenshots/1_mess.png) | ➜ | ![Accessories menu](AdvancedAccessoriesMenu/screenshots/1_neat.png) |
+| ![Old menu messy](AdvancedAccessoriesMenu/screenshots/1_mess.png) | ➜ | ![New menu clean](AdvancedAccessoriesMenu/screenshots/1_neat.png) |
 
 ## Features
 
