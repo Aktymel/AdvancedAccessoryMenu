@@ -32,13 +32,11 @@ namespace AdvancedAccessoriesMenu
         internal static new ManualLogSource Logger;
 
         internal ConfigEntry<bool> HideEmptySlots;
-        private ConfigEntry<KeyboardShortcut> _openKey;
         private AccessoriesMenuWindow _window;
 
         private void Awake()
         {
             Logger = base.Logger;
-            _openKey = Config.Bind("General", "Open Accessories menu", KeyboardShortcut.Empty, "Switch between the game's accessory slot list and the Accessories menu in chara maker.");
             HideEmptySlots = Config.Bind("General", "Hide empty slots", false, "Leave empty accessory slots out of the Accessories menu.");
             _window = new AccessoriesMenuWindow(this);
 
@@ -72,7 +70,6 @@ namespace AdvancedAccessoriesMenu
         private void Update()
         {
             if (!MakerAPI.InsideAndLoaded) return;
-            if (_openKey.Value.IsDown()) _window.Visible = !_window.Visible;
             NativeMenu.SetListHidden(WindowShown);
             if (!WindowShown) AccessoryHighlight.Show(-1);
         }

@@ -7,8 +7,7 @@ Also built for AI-Shoujo, but not tested there yet.
 
 | Game's slot list | | Accessories menu |
 |---|:---:|---|
-| ![Honey Select 2 before](AdvancedAccessoriesMenu/screenshots/3_HS2_mess_ex.png) | ➜ | ![Honey Select 2 after](AdvancedAccessoriesMenu/screenshots/3_HS2_neat_ex.png) |
-| ![Koikatsu Sunshine before](AdvancedAccessoriesMenu/screenshots/1_KKS_mess_ex.png) | ➜ | ![Koikatsu Sunshine after](AdvancedAccessoriesMenu/screenshots/1_KKS_neat_ex.png) |
+| ![Koikatsu Sunshine slot list](AdvancedAccessoriesMenu/screenshots/2_KKS_mess.png) | ➜ | ![Koikatsu Sunshine Accessories menu](AdvancedAccessoriesMenu/screenshots/2_KKS_neat.png) |
 
 ## Features
 
@@ -16,12 +15,6 @@ Also built for AI-Shoujo, but not tested there yet.
 - Toggle between advanced menu and old style.
 - Empty slots can be hidden.
 - KKS / KK outfits have their own groups.
-
-## Screenshots
-
-| Game's slot list | | Accessories menu |
-|---|:---:|---|
-| ![Koikatsu Sunshine slot list](AdvancedAccessoriesMenu/screenshots/2_KKS_mess.png) | ➜ | ![Koikatsu Sunshine Accessories menu](AdvancedAccessoriesMenu/screenshots/2_KKS_neat.png) |
 
 ## Requirements
 
