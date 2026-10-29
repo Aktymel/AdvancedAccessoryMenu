@@ -12,15 +12,10 @@ Also built for AI-Shoujo, but not tested there yet.
 
 ## Features
 
-- **Advanced** button that replaces the game's slot list with the Accessories menu and back.
-- Groups of slot ranges (e.g. Hair 1–10, Piercing 11–13) that can be collapsed.
-- Groups can't overlap; a new group starts at the first free slot.
-- Clicking a slot selects it in the game's accessory menu, the same as clicking it there.
-- Slots outside any group are listed under *Ungrouped*.
+- Create groups for accessory slots.
+- Toggle between advanced menu and old style.
 - Empty slots can be hidden.
-- Groups are saved on the character card and on clothes cards. In Koikatsu Sunshine / Koikatsu every outfit has its own groups.
-- Fixes old accessory names in new MoreAccessories slots after *+1* / *+10*.
-- The game's original accessory list is not changed.
+- KKS / KK outfits have their own groups.
 
 ## Screenshots
 
@@ -44,11 +39,8 @@ Copy the file for your game into `BepInEx\plugins`:
 
 ## Usage
 
-1. In the character maker open *Accessories* and press **Advanced** (Honey Select 2 / AI-Shoujo: next to the *Accessories* title; Koikatsu Sunshine / Koikatsu: next to *Copy*).
-2. Enter a name and the last slot, then press **Add group**.
-3. Click a slot to edit it in the game's accessory menu.
-
-A keyboard shortcut for the menu can be set in the plugin settings (F1).
+1. Press **Advanced** button to toggle between new menu and old.
+2. Create groups by giving them a name and set range.
 
 ## Compatibility
 
