@@ -22,12 +22,7 @@ Supported games: HS2, AI, KK, KKS
 
 ## Installation
 
-Copy the file for your game into `BepInEx\plugins`:
-
-- Honey Select 2: `HS2_AdvancedAccessoriesMenu.dll`
-- Koikatsu Sunshine: `KKS_AdvancedAccessoriesMenu.dll`
-- AI-Shoujo (not tested): `AI_AdvancedAccessoriesMenu.dll`
-- Koikatsu: `KK_AdvancedAccessoriesMenu.dll`
+Copy .dll into `BepInEx\plugins`.
 
 ## Usage
 
@@ -39,7 +34,7 @@ Copy the file for your game into `BepInEx\plugins`:
 | Plugin | HS2 / AI | KKS / KK |
 |---|---|---|
 | MoreAccessories | [1.2.2+](https://bitbucket.org/Joan6694/hsplugins) | [2.0.21+](https://github.com/jalil49/MoreAccessories) |
-| SliderHighlight (accessory highlight on hover) | — | 2.2+ |
+| SliderHighlight | — | 2.2+ |
 
 ## Changelog
 
