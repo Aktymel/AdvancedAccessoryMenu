@@ -51,6 +51,14 @@ namespace AdvancedAccessoriesMenu
             group.blocksRaycasts = !hidden;
         }
 
+        // Also finds components on maker pages that are inactive at the moment
+        public static T FindInScene<T>() where T : Component
+        {
+            foreach (var component in Resources.FindObjectsOfTypeAll<T>())
+                if (component.gameObject.scene.IsValid()) return component;
+            return null;
+        }
+
         public static CanvasGroup GetOrAddCanvasGroup(GameObject go)
         {
             var group = go.GetComponent<CanvasGroup>();

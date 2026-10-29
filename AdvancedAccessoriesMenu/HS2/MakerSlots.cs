@@ -1,6 +1,7 @@
 using System.Collections;
 using CharaCustom;
 using HarmonyLib;
+using KKAPI.Maker;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,6 +11,7 @@ namespace AdvancedAccessoriesMenu
     {
         private const int VanillaSlotCount = 20;
         private const int AccessoryMenuIndex = 4;
+        private const int EmptyType = 350;
 
         private static CustomChangeMainMenu _mainMenu;
         private static Button[] _vanillaButtons;
@@ -29,6 +31,15 @@ namespace AdvancedAccessoriesMenu
             var button = GetButton(slot);
             var text = button == null ? null : button.GetComponentInChildren<Text>();
             return text == null ? null : text.text;
+        }
+
+        // Read from the slot data rather than the spawned object, which may not exist yet right after a move
+        public static bool IsEmpty(int slot)
+        {
+#pragma warning disable 612 // GetPartsInfo is marked obsolete but is the only way that covers MoreAccessories slots
+            var part = AccessoriesApi.GetPartsInfo(slot);
+#pragma warning restore 612
+            return part == null || part.type == EmptyType;
         }
 
         public static void Select(int slot)

@@ -2,9 +2,6 @@ using System.Collections.Generic;
 using KKAPI.Maker;
 using KKAPI.Utilities;
 using UnityEngine;
-#if HS2 || AI
-using AIChara;
-#endif
 
 namespace AdvancedAccessoriesMenu
 {
@@ -40,6 +37,9 @@ namespace AdvancedAccessoriesMenu
         private bool _suggestFirst = true;
         private SlotGroup _editing;
         private bool _confirmDelete;
+        private string _moveTo = "";
+        // The slot whose "→" was pressed, -1 when no slot is being moved
+        private int _movingSlot = -1;
         private string _name = "";
         private string _first = "";
         private string _last = "";
@@ -92,7 +92,11 @@ namespace AdvancedAccessoriesMenu
 
         private void DrawWindow(int id)
         {
+            GUILayout.BeginHorizontal();
             _plugin.HideEmptySlots.Value = GUILayout.Toggle(_plugin.HideEmptySlots.Value, " Hide empty slots");
+            GUILayout.FlexibleSpace();
+            if (ConfigManagerBridge.Available && GUILayout.Button("s", GUILayout.Width(26))) ConfigManagerBridge.Open(AdvancedAccessoriesMenuPlugin.PluginDisplayName);
+            GUILayout.EndHorizontal();
 
             var chaCtrl = MakerAPI.GetCharacterControl();
             var controller = GroupsController.Get(chaCtrl);
@@ -103,17 +107,25 @@ namespace AdvancedAccessoriesMenu
             }
 
             var groups = controller.Groups;
-            DrawList(groups, chaCtrl);
+            // Another character or outfit
+            if (groups != _editorGroups)
+            {
+                ClearEditor();
+                _editorGroups = groups;
+            }
+
+            DrawList(groups);
             DrawNativeButtons();
-            DrawEditor(groups);
+            if (_movingSlot >= 0) DrawSlotMove(groups);
+            else DrawEditor(groups);
         }
 
         // With hundreds of slots only the rows in view are drawn; the rest is empty space of the same height.
         // The rows are built in the Layout event and reused by the other events of the frame, so they always match.
-        private void DrawList(List<SlotGroup> groups, ChaControl chaCtrl)
+        private void DrawList(List<SlotGroup> groups)
         {
             var type = Event.current.type;
-            if (type == EventType.Layout) BuildRows(groups, chaCtrl);
+            if (type == EventType.Layout) BuildRows(groups);
             if (type == EventType.Repaint) _hoveredSlot = -1;
 
             // Long names are clipped instead of widening the list, so there's no horizontal scrollbar
@@ -139,7 +151,7 @@ namespace AdvancedAccessoriesMenu
             }
         }
 
-        private void BuildRows(List<SlotGroup> groups, ChaControl chaCtrl)
+        private void BuildRows(List<SlotGroup> groups)
         {
             _rows.Clear();
             var count = AccessoriesApi.GetMakerAccessoryCount();
@@ -151,7 +163,7 @@ namespace AdvancedAccessoriesMenu
                 _rows.Add(new Row { Group = group, Slot = -1 });
                 if (group.Collapsed) continue;
                 for (var slot = group.First; slot <= group.Last && slot < count; slot++)
-                    if (!hideEmpty || slot == selected || !IsEmpty(chaCtrl, slot)) _rows.Add(new Row { Group = group, Slot = slot });
+                    if (!hideEmpty || slot == selected || !MakerSlots.IsEmpty(slot)) _rows.Add(new Row { Group = group, Slot = slot });
             }
 
             // Groups are sorted, so one pass finds the slots between them
@@ -163,14 +175,9 @@ namespace AdvancedAccessoriesMenu
                 while (next < groups.Count && groups[next].Last < slot) next++;
                 if (next < groups.Count && groups[next].First <= slot) continue;
                 anyUngrouped = true;
-                if (!_ungroupedCollapsed && (!hideEmpty || slot == selected || !IsEmpty(chaCtrl, slot))) _rows.Add(new Row { Slot = slot });
+                if (!_ungroupedCollapsed && (!hideEmpty || slot == selected || !MakerSlots.IsEmpty(slot))) _rows.Add(new Row { Slot = slot });
             }
             if (anyUngrouped) _rows.Insert(ungroupedHeader, new Row { Slot = -1 });
-        }
-
-        private static bool IsEmpty(ChaControl chaCtrl, int slot)
-        {
-            return AccessoriesApi.GetAccessoryObject(chaCtrl, slot) == null;
         }
 
         private void DrawNativeButtons()
@@ -219,16 +226,40 @@ namespace AdvancedAccessoriesMenu
             if (GUILayout.Button($"{slot + 1}.  {MakerSlots.Name(slot) ?? ""}", _slotStyle, GUILayout.MinWidth(0), GUILayout.Height(ButtonHeight))) MakerSlots.Select(slot);
             if (Event.current.type == EventType.Repaint && GUILayoutUtility.GetLastRect().Contains(Event.current.mousePosition)) _hoveredSlot = slot;
             GUI.backgroundColor = color;
+            if (SlotMover.Available && !MakerSlots.IsEmpty(slot) && GUILayout.Button("→", _rowButtonStyle, GUILayout.Width(24), GUILayout.Height(ButtonHeight)))
+            {
+                ClearEditor();
+                _movingSlot = slot;
+            }
+        }
+
+        private void DrawSlotMove(List<SlotGroup> groups)
+        {
+            GUILayout.Label($"Move slot {_movingSlot + 1} to", _headerStyle);
+            if (groups.Count == 0) GUILayout.Label("No groups yet.");
+            var inGroup = false;
+            foreach (var group in groups)
+            {
+                if (group.Contains(_movingSlot)) inGroup = true;
+                if (GUILayout.Button($"{group.Name}  ({group.First + 1}–{group.Last + 1})  {SlotMoves.FreeSlots(groups, group)} free", _slotStyle, GUILayout.MinWidth(0)))
+                    FinishSlotMove(SlotMoves.MoveToGroup(_movingSlot, group));
+            }
+            if (inGroup && GUILayout.Button($"Ungrouped  {SlotMoves.FreeSlots(groups, null)} free", _slotStyle, GUILayout.MinWidth(0)))
+                FinishSlotMove(SlotMoves.MoveToUngrouped(groups, _movingSlot));
+            if (_error != null) GUILayout.Label(_error, _warningStyle);
+            if (GUILayout.Button("Cancel", GUILayout.Height(26))) ClearEditor();
+        }
+
+        private void FinishSlotMove(string error)
+        {
+            _error = error;
+            if (_error == null) _movingSlot = -1;
+            // The buttons are gone after the move, so this event must not draw the rest of them
+            GUIUtility.ExitGUI();
         }
 
         private void DrawEditor(List<SlotGroup> groups)
         {
-            // Another character or outfit
-            if (groups != _editorGroups)
-            {
-                ClearEditor();
-                _editorGroups = groups;
-            }
             if (_suggestFirst && _editing == null)
             {
                 _first = (SlotGroups.FirstFreeSlot(groups) + 1).ToString();
@@ -249,6 +280,17 @@ namespace AdvancedAccessoriesMenu
             _last = GUILayout.TextField(_last, GUILayout.Width(50));
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
+
+            // Moves or copies the group with its accessories so that it starts at the given slot
+            if (_editing != null && SlotMover.Available)
+            {
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("To slot", GUILayout.Width(44));
+                _moveTo = GUILayout.TextField(_moveTo, GUILayout.Width(50));
+                if (GUILayout.Button("Move", GUILayout.MinWidth(0))) MoveEdited(groups, false);
+                if (GUILayout.Button("Copy", GUILayout.MinWidth(0))) MoveEdited(groups, true);
+                GUILayout.EndHorizontal();
+            }
 
             if (_error != null) GUILayout.Label(_error, _warningStyle);
 
@@ -272,18 +314,33 @@ namespace AdvancedAccessoriesMenu
             ClearEditor();
         }
 
+        private void MoveEdited(List<SlotGroup> groups, bool copy)
+        {
+            int first;
+            if (!int.TryParse(_moveTo.Trim(), out first))
+            {
+                _error = "Enter a slot number.";
+                return;
+            }
+            var error = copy ? SlotMoves.CopyGroup(groups, _editing, first - 1) : SlotMoves.MoveGroup(groups, _editing, first - 1);
+            StartEdit(_editing);
+            _error = error;
+        }
+
         private void StartEdit(SlotGroup group)
         {
+            ClearEditor();
             _editing = group;
             _name = group.Name;
             _first = (group.First + 1).ToString();
             _last = (group.Last + 1).ToString();
-            _error = null;
-            _confirmDelete = false;
+            _moveTo = _first;
         }
 
         private void ClearEditor()
         {
+            _movingSlot = -1;
+            _moveTo = "";
             _editing = null;
             _confirmDelete = false;
             _name = "";

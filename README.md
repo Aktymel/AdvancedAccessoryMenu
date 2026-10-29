@@ -6,11 +6,12 @@ Supported games: HS2, AI, KK, KKS
 
 | Game's slot list | | Accessories menu |
 |---|:---:|---|
-| ![Koikatsu Sunshine slot list](AdvancedAccessoriesMenu/screenshots/2_KKS_mess.png) | ➜ | ![Koikatsu Sunshine Accessories menu](AdvancedAccessoriesMenu/screenshots/2_KKS_neat.png) |
+| ![Game's slot list](AdvancedAccessoriesMenu/screenshots/1_mess.png) | ➜ | ![Accessories menu](AdvancedAccessoriesMenu/screenshots/1_neat.png) |
 
 ## Features
 
 - Create groups for accessory slots.
+- Copy and move entire groups at once.
 - Toggle between advanced menu and old style.
 - Empty slots can be hidden.
 - KKS / KK outfits have their own groups.

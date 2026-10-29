@@ -32,11 +32,13 @@ namespace AdvancedAccessoriesMenu
         internal static new ManualLogSource Logger;
 
         internal ConfigEntry<bool> HideEmptySlots;
+        private ConfigEntry<bool> _openAutomatically;
         private AccessoriesMenuWindow _window;
 
         private void Awake()
         {
             Logger = base.Logger;
+            _openAutomatically = Config.Bind("General", "Open automatically", false, "Show the Accessories menu instead of the game's slot list when the maker opens.");
             HideEmptySlots = Config.Bind("General", "Hide empty slots", false, "Leave empty accessory slots out of the Accessories menu.");
             _window = new AccessoriesMenuWindow(this);
 
@@ -55,6 +57,7 @@ namespace AdvancedAccessoriesMenu
             {
                 MakerSlots.Reset();
                 NativeMenu.Reset();
+                _window.Visible = _openAutomatically.Value;
             };
             MakerAPI.MakerExiting += (sender, e) =>
             {
