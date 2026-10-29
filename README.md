@@ -1,9 +1,8 @@
 # Advanced Accessories Menu
 
-A plugin that sorts accessory slots in the character maker into named, collapsible groups.
+A plugin that gives ability to create groups for accessory slots.
 
-Supported games: Honey Select 2, Koikatsu Sunshine, Koikatsu.
-Also built for AI-Shoujo, but not tested there yet.
+Supported games: HS2, AI, KK, KKS
 
 | Game's slot list | | Accessories menu |
 |---|:---:|---|
