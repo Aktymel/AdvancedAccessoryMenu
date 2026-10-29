@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>KKS_AdvancedAccessoriesMenu</AssemblyName>
+    <DefineConstants>$(DefineConstants);KKS</DefineConstants>
+    <GamePath Condition="'$(GamePath)' == ''">$(KKSGamePath)</GamePath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="IllusionLibs.KoikatsuSunshine.AllPackages" Version="2021.9.17" />
+    <PackageReference Include="IllusionModdingAPI.KKSAPI" Version="1.48.0" />
+    <PackageReference Include="ExtensibleSaveFormat.KoikatsuSunshine" Version="21.1.3" />
+    <!-- Soft dependencies, add only when needed:
+    <PackageReference Include="MaterialEditor.KoikatsuSunshine" Version="4.0.3" />
+    <PackageReference Include="ABMX.KKSABMX" Version="5.4.0" />
+    <PackageReference Include="OverlayMods.KoikatsuSunshine" Version="6.2.0" />
+    -->
+  </ItemGroup>
+
+</Project>

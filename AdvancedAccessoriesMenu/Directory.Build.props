@@ -1,0 +1,45 @@
+<Project>
+  <!-- Settings shared by every game's project (HS2/, KKS/, AI/, KK/). -->
+
+  <PropertyGroup>
+    <TargetFramework>net46</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <DebugType>embedded</DebugType>
+    <RootNamespace>AdvancedAccessoriesMenu</RootNamespace>
+
+    <Version>0.1.0</Version>
+    <AssemblyTitle>Advanced Accessories Menu</AssemblyTitle>
+    <Product>Advanced Accessories Menu</Product>
+    <Description>Short description</Description>
+    <Company>Aktymel</Company>
+    <Copyright>Copyright © 2026 Aktymel</Copyright>
+  </PropertyGroup>
+
+  <!-- Optional game folders, only used to copy the built plugin into the game (not committed):
+       <Project><PropertyGroup>
+         <HS2GamePath>D:\Games\HoneySelect2</HS2GamePath>
+         <KKSGamePath>D:\Games\KoikatsuSunshine</KKSGamePath>
+       </PropertyGroup></Project>
+       Also AIGamePath and KKGamePath. -->
+  <Import Project="$(MSBuildThisFileDirectory)GamePath.user.props" Condition="Exists('$(MSBuildThisFileDirectory)GamePath.user.props')" />
+
+  <!-- Game and plugin libraries come from NuGet (see nuget.config), so every game builds without it being installed.
+       They are only compiled against; the game provides them at runtime. -->
+  <ItemDefinitionGroup>
+    <PackageReference>
+      <PrivateAssets>all</PrivateAssets>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </PackageReference>
+  </ItemDefinitionGroup>
+
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Shared\**\*.cs" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" />
+    <PackageReference Include="IllusionLibs.BepInEx" Version="5.4.22" />
+  </ItemGroup>
+
+  <!-- Copies the built plugin into the game when its folder is set; turn off with -p:CopyToGame=false -->
+  <Target Name="CopyToGame" AfterTargets="Build" Condition="'$(CopyToGame)' != 'false' And '$(GamePath)' != '' And Exists('$(GamePath)\BepInEx\plugins')">
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(GamePath)\BepInEx\plugins" />
+  </Target>
+</Project>

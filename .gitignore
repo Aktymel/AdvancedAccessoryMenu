@@ -1,0 +1,7 @@
+bin/
+obj/
+.vs/
+*.user
+GamePath.user.props
+release/
+discord.txt
