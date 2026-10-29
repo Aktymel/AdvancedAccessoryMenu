@@ -4,7 +4,7 @@ A plugin that gives ability to create groups for accessory slots.
 
 Supported games: HS2, AI, KK, KKS
 
-| Game's slot list | | Accessories menu |
+| Old menu messy | | New menu clean |
 |---|:---:|---|
 | ![Old menu messy](AdvancedAccessoriesMenu/screenshots/1_mess.png) | ➜ | ![New menu clean](AdvancedAccessoriesMenu/screenshots/1_neat.png) |
 
