@@ -6,7 +6,7 @@ Supported games: HS2, AI, KK, KKS
 
 | Game's slot list | | Accessories menu |
 |---|:---:|---|
-| ![Game's slot list](AdvancedAccessoriesMenu/screenshots/1_mess.png) | ➜ | ![Accessories menu](AdvancedAccessoriesMenu/screenshots/1_neat.png) |
+| ![Old menu messy](AdvancedAccessoriesMenu/screenshots/1_mess.png) | ➜ | ![New menu clean](AdvancedAccessoriesMenu/screenshots/1_neat.png) |
 
 ## Features
 
@@ -29,6 +29,7 @@ Copy .dll into `BepInEx\plugins`.
 
 1. Press **Advanced** button to toggle between new menu and old.
 2. Create groups by giving them a name and set range.
+3. Move/copy entire groups to another slot.
 
 ## Compatibility
 
