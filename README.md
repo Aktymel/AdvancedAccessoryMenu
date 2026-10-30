@@ -37,9 +37,11 @@ Copy .dll into `BepInEx\plugins`.
 |---|---|---|
 | MoreAccessories | [1.2.2+](https://bitbucket.org/Joan6694/hsplugins) | [2.0.21+](https://github.com/jalil49/MoreAccessories) |
 | SliderHighlight | — | 2.2+ |
+| [Pregnancy Plus](https://github.com/thojmr/PregnancyPlus) | ✓ | 7.9+ (KKS) |
 
 ## Changelog
 
+- 0.1.1 — Bug fix for KK / KKS.
 - 0.1.0 — first version.
 
 ## License

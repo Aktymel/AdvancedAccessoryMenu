@@ -12,6 +12,7 @@ namespace AdvancedAccessoriesMenu
     [BepInPlugin(GUID, PluginDisplayName, Version)]
     [BepInDependency(KoikatuAPI.GUID, KoikatuAPI.VersionConst)]
     [BepInDependency("com.joan6694.illusionplugins.moreaccessories", BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency("Accessory_Shortcuts", BepInDependency.DependencyFlags.SoftDependency)]
 #if HS2
     [BepInProcess("HoneySelect2")]
 #elif AI
@@ -27,7 +28,7 @@ namespace AdvancedAccessoriesMenu
     {
         public const string GUID = "com.aktymel.advancedaccessoriesmenu";
         public const string PluginDisplayName = "Advanced Accessories Menu";
-        public const string Version = "0.1.0";
+        public const string Version = "0.1.1";
 
         internal static new ManualLogSource Logger;
 
@@ -51,6 +52,14 @@ namespace AdvancedAccessoriesMenu
             {
                 // A MoreAccessories version this wasn't made for only loses the slot name fix
                 Logger.LogWarning("Could not patch MoreAccessories: " + e);
+            }
+            try
+            {
+                AccessoryShortcutsBlock.Patch(harmony);
+            }
+            catch (Exception e)
+            {
+                Logger.LogWarning("Could not patch Accessory Shortcuts: " + e);
             }
             CharacterApi.RegisterExtraBehaviour<GroupsController>(GUID);
             MakerAPI.MakerFinishedLoading += (sender, e) =>

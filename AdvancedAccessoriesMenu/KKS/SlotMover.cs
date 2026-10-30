@@ -1,6 +1,10 @@
 using System;
+using BepInEx;
+using BepInEx.Bootstrap;
 using ChaCustom;
 using HarmonyLib;
+using KKAPI.Maker;
+using TMPro;
 using UnityEngine.UI;
 
 namespace AdvancedAccessoriesMenu
@@ -9,18 +13,54 @@ namespace AdvancedAccessoriesMenu
     // KKAPI reports both to other plugins, so Material Editor and the like move their data along.
     internal static class SlotMover
     {
-        // Off until copying works in KKS / KK: other plugins' patches on CopyAcs break it
-        public static bool Available => false;
+        public static bool Available => true;
+
+        // Pregnancy Plus before 7.9 throws in its patch on the Transfer page, which breaks every move and copy
+        public static string Warning
+        {
+            get
+            {
+#if KK
+                // Pregnancy Plus for KK has its own versions (6.x) and isn't checked yet
+                return null;
+#else
+                PluginInfo info;
+                if (!Chainloader.PluginInfos.TryGetValue("KK_PregnancyPlus", out info)) return null;
+                return info.Metadata.Version < new Version(7, 9) ? "Pregnancy Plus 7.9+ needed for Move/Copy." : null;
+#endif
+            }
+        }
 
         public static bool Move(int source, int destination)
         {
             var changeSlot = ScreenUi.FindInScene<CustomAcsChangeSlot>();
             var sourcePage = changeSlot == null ? null : SlotPage(changeSlot, source);
-            if (sourcePage == null || !Copy(source, destination)) return false;
+            if (sourcePage == null)
+            {
+                AdvancedAccessoriesMenuPlugin.Logger.LogWarning($"Move {source + 1} -> {destination + 1}: no slot page for {source + 1}");
+                return false;
+            }
+            if (!Copy(source, destination)) return false;
 
-            sourcePage.UpdateSelectAccessoryType(0);
-            sourcePage.UpdateCustomUI();
-            return true;
+            var shownBefore = Dropdown(sourcePage)?.value;
+            Clear(sourcePage);
+            if (MakerSlots.IsEmpty(source)) return true;
+            AdvancedAccessoriesMenuPlugin.Logger.LogWarning($"Move {source + 1} -> {destination + 1}: slot {source + 1} isn't empty after clearing, " +
+                                                            $"part {Part(source)}, dropdown {shownBefore} -> {Dropdown(sourcePage)?.value}");
+            return false;
+        }
+
+        private static string Part(int slot)
+        {
+#pragma warning disable 612
+            var part = AccessoriesApi.GetPartsInfo(slot);
+#pragma warning restore 612
+            return part == null ? "none" : $"{part.type}/{part.id}";
+        }
+
+        private static TMP_Dropdown Dropdown(CvsAccessory page)
+        {
+            return Traverse.Create(page).Field("ddAcsType").GetValue<TMP_Dropdown>();
         }
 
         // The destination must be empty
@@ -39,10 +79,7 @@ namespace AdvancedAccessoriesMenu
                 if (mirrored) mirror.isOn = false;
                 page.Field("selSrc").SetValue(source);
                 page.Field("selDst").SetValue(destination);
-                // A normal call through a delegate, not MethodBase.Invoke: other plugins' patches on CopyAcs
-                // (e.g. Pregnancy Plus) fail with FieldAccessException when it is called by reflection
-                var copyAcs = (Action)Delegate.CreateDelegate(typeof(Action), transfer, AccessTools.Method(typeof(CvsAccessoryChange), "CopyAcs"));
-                copyAcs();
+                AccessTools.Method(typeof(CvsAccessoryChange), "CopyAcs").Invoke(transfer, null);
             }
             finally
             {
@@ -50,7 +87,20 @@ namespace AdvancedAccessoriesMenu
                 page.Field("selDst").SetValue(oldDestination);
                 if (mirrored) mirror.isOn = true;
             }
-            return !MakerSlots.IsEmpty(destination);
+            if (!MakerSlots.IsEmpty(destination)) return true;
+            AdvancedAccessoriesMenuPlugin.Logger.LogWarning($"Copy {source + 1} -> {destination + 1}: slot {destination + 1} is still empty, source part {Part(source)}");
+            return false;
+        }
+
+        // Picks "None" in the slot page's type dropdown like the player does. UpdateSelectAccessoryType is the
+        // dropdown's handler and updates the kind window from the dropdown, so calling it while the dropdown shows
+        // another type put that window's accessory back into the slot.
+        private static void Clear(CvsAccessory page)
+        {
+            // The page only shows the slot's current type once it has been updated
+            page.UpdateCustomUI();
+            var dropdown = Dropdown(page);
+            if (dropdown != null) dropdown.value = 0;
         }
 
         private static CvsAccessory SlotPage(CustomAcsChangeSlot changeSlot, int slot)

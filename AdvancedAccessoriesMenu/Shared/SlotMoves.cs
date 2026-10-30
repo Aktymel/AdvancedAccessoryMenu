@@ -19,12 +19,15 @@ namespace AdvancedAccessoriesMenu
                 if (!group.Contains(slot) && !MakerSlots.IsEmpty(slot)) return $"Slot {slot + 1} is not empty.";
 
             // Starting from the end the group moves towards, no slot is overwritten before it has moved
+            Diag.LogSlots($"Move group {group.First + 1}-{group.Last + 1} to {first + 1}, before");
             var size = group.Last - group.First;
             for (var i = 0; i <= size; i++)
             {
                 var source = offset > 0 ? group.Last - i : group.First + i;
                 if (MakerSlots.IsEmpty(source)) continue;
-                if (!SlotMover.Move(source, source + offset)) return "Moving failed.";
+                var moved = SlotMover.Move(source, source + offset);
+                Diag.LogSlots($"Moved {source + 1} -> {source + offset + 1}{(moved ? "" : " FAILED")}");
+                if (!moved) return "Moving failed.";
             }
             group.First = first;
             group.Last = last;
@@ -43,10 +46,13 @@ namespace AdvancedAccessoriesMenu
             for (var slot = first; slot <= last; slot++)
                 if (!MakerSlots.IsEmpty(slot)) return $"Slot {slot + 1} is not empty.";
 
+            Diag.LogSlots($"Copy group {group.First + 1}-{group.Last + 1} to {first + 1}, before");
             for (var source = group.First; source <= group.Last; source++)
             {
                 if (MakerSlots.IsEmpty(source)) continue;
-                if (!SlotMover.Copy(source, first + source - group.First)) return "Copying failed.";
+                var copied = SlotMover.Copy(source, first + source - group.First);
+                Diag.LogSlots($"Copied {source + 1} -> {first + source - group.First + 1}{(copied ? "" : " FAILED")}");
+                if (!copied) return "Copying failed.";
             }
             groups.Add(new SlotGroup { Name = group.Name + " copy", First = first, Last = last });
             SlotGroups.Sort(groups);

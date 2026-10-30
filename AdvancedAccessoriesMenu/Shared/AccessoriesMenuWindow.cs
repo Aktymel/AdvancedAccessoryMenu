@@ -8,6 +8,7 @@ namespace AdvancedAccessoriesMenu
     internal sealed class AccessoriesMenuWindow
     {
         private const int WindowId = 0x41414D31;
+        private const string TextFieldName = "AdvancedAccessoriesMenuText";
         // Slots the game has without MoreAccessories
         private const int VanillaSlotCount = 20;
         private static readonly Color SelectedColor = new Color(0.4f, 0.8f, 1f);
@@ -28,6 +29,8 @@ namespace AdvancedAccessoriesMenu
         private int _endRow;
         private float _viewHeight = 600;
         private int _hoveredSlot = -1;
+        // A text field of the menu has the keyboard
+        private bool _typing;
         private Vector2 _scroll;
         private bool _ungroupedCollapsed;
 
@@ -85,18 +88,33 @@ namespace AdvancedAccessoriesMenu
                 _warningStyle = new GUIStyle(GUI.skin.label) { fontStyle = FontStyle.Bold, wordWrap = true };
                 _warningStyle.normal.textColor = new Color(1f, 0.85f, 0.2f);
             }
+            // A click outside the menu takes the keyboard away from its text fields, so other plugins' hotkeys work again
+            if (_typing && Event.current.type == EventType.MouseDown && !rect.Contains(Event.current.mousePosition))
+            {
+                GUIUtility.keyboardControl = 0;
+                _typing = false;
+            }
             GUILayout.Window(WindowId, rect, DrawWindow, "Accessories menu", GUILayout.Width(rect.width), GUILayout.Height(rect.height));
             IMGUIUtils.EatInputInRect(rect);
             GUI.skin = skin;
         }
 
+        private static string TextField(string text, params GUILayoutOption[] options)
+        {
+            GUI.SetNextControlName(TextFieldName);
+            return GUILayout.TextField(text, options);
+        }
+
         private void DrawWindow(int id)
         {
+            _typing = GUI.GetNameOfFocusedControl() == TextFieldName;
             GUILayout.BeginHorizontal();
             _plugin.HideEmptySlots.Value = GUILayout.Toggle(_plugin.HideEmptySlots.Value, " Hide empty slots");
             GUILayout.FlexibleSpace();
             if (ConfigManagerBridge.Available && GUILayout.Button("s", GUILayout.Width(26))) ConfigManagerBridge.Open(AdvancedAccessoriesMenuPlugin.PluginDisplayName);
             GUILayout.EndHorizontal();
+            var warning = SlotMover.Warning;
+            if (warning != null) GUILayout.Label(warning, _warningStyle);
 
             var chaCtrl = MakerAPI.GetCharacterControl();
             var controller = GroupsController.Get(chaCtrl);
@@ -270,14 +288,14 @@ namespace AdvancedAccessoriesMenu
 
             GUILayout.BeginHorizontal();
             GUILayout.Label("Name", GUILayout.Width(44));
-            _name = GUILayout.TextField(_name);
+            _name = TextField(_name);
             GUILayout.EndHorizontal();
 
             GUILayout.BeginHorizontal();
             GUILayout.Label("Slots", GUILayout.Width(44));
-            _first = GUILayout.TextField(_first, GUILayout.Width(50));
+            _first = TextField(_first, GUILayout.Width(50));
             GUILayout.Label("–", GUILayout.Width(14));
-            _last = GUILayout.TextField(_last, GUILayout.Width(50));
+            _last = TextField(_last, GUILayout.Width(50));
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
 
@@ -286,7 +304,7 @@ namespace AdvancedAccessoriesMenu
             {
                 GUILayout.BeginHorizontal();
                 GUILayout.Label("To slot", GUILayout.Width(44));
-                _moveTo = GUILayout.TextField(_moveTo, GUILayout.Width(50));
+                _moveTo = TextField(_moveTo, GUILayout.Width(50));
                 if (GUILayout.Button("Move", GUILayout.MinWidth(0))) MoveEdited(groups, false);
                 if (GUILayout.Button("Copy", GUILayout.MinWidth(0))) MoveEdited(groups, true);
                 GUILayout.EndHorizontal();

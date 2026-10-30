@@ -11,6 +11,8 @@ namespace AdvancedAccessoriesMenu
     {
         public static bool Available => true;
 
+        public static string Warning => null;
+
         public static bool Move(int source, int destination)
         {
             var slot = ScreenUi.FindInScene<CvsA_Slot>();
